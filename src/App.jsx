@@ -1,114 +1,120 @@
-import { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 
-class App extends Component {
-  state = {
-    contacts: [],
-    filter: '',
-    name: '',
-    number: ''
-  };
-
-  componentDidMount() {
-    const savedContacts = localStorage.getItem('contacts');
-    if (savedContacts) {
-      this.setState({ contacts: JSON.parse(savedContacts) });
+const App = () => {
+  const [contacts, setContacts] = useState(() => {
+    try {
+      const saved = typeof window !== 'undefined' ? localStorage.getItem('contacts') : null;
+      return saved ? JSON.parse(saved) : [];
+    } catch (error) {=
+      console.error('Failed to read contacts from localStorage:', error);
+      return [];
     }
-  }
+  });
 
-  componentDidUpdate(prevProps, prevState) {
-    if (prevState.contacts !== this.state.contacts) {
-      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
+  const [filter, setFilter] = useState('');
+  const [name, setName] = useState('');
+  const [number, setNumber] = useState('');
+
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined' && window.localStorage) {
+        localStorage.setItem('contacts', JSON.stringify(contacts));
+      }
+    } catch (error) {
+      console.error('Failed to save contacts to localStorage:', error);
     }
-  }
+  }, [contacts]);
 
-  handleSubmit = (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
-    const form = e.currentTarget;
-    const name = form.elements.name.value;
-    const number = form.elements.number.value;
+    const form = e.target;
+    const nameValue = name;
+    const numberValue = number;
 
-    if (this.state.contacts.find(contact => contact.name === name)) {
-      alert(`${name} is already in contacts.`);
+    if (contacts.find(contact => contact.name === nameValue)) {
+      alert(`${nameValue} is already in contacts.`);
       form.reset();
       return;
     }
 
-    this.setState(prevState => ({
-      contacts: [...prevState.contacts, { name: name, number: number }]
-    }));
-
+    setContacts(prevContacts => [...prevContacts, { name: nameValue, number: numberValue }]);
+    setName('');
+    setNumber('');
     form.reset();
-  }
+  };
 
-  handleFilterChange = (e) => {
-    this.setState({ filter: e.target.value });
-  }
+  const handleFilterChange = (e) => {
+    setFilter(e.target.value);
+  };
 
-  getFilteredContacts = () => {
-    const { contacts, filter } = this.state;
+  const getFilteredContacts = () => {
     const normalizedFilter = filter.toLowerCase();
-
     return contacts.filter(contact =>
       contact.name.toLowerCase().includes(normalizedFilter)
     );
-  }
+  };
 
-  deleteContact = (name) => {
-    this.setState(prevState => ({
-      contacts: prevState.contacts.filter(contact => contact.name !== name)
-    }));
-  }
+  const deleteContact = (name) => {
+    setContacts(prevContacts => prevContacts.filter(contact => contact.name !== name));
+  };
 
-  render() {
-    const filteredContacts = this.getFilteredContacts();
+  const filteredContacts = getFilteredContacts();
 
-    return (
-      <>
-        <form onSubmit={this.handleSubmit} className='form'>
-          <input
+  return (
+    <>
+      <form onSubmit={handleSubmit} className='form'>
+        <input
           className='input'
+          type="text"
+          name="name"
+          pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
+          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+          required
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <input
+          className='input'
+          type="tel"
+          name="number"
+          pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
+          title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
+          required
+          value={number}
+          onChange={(e) => setNumber(e.target.value)}
+        />
+        <button type="submit" className='addBtn'>
+          Add contact
+        </button>
+      </form>
+
+      <div className='filter'>
+        <label className='label'>
+          Find contacts by name
+          <input
+            className='input'
             type="text"
-            name="name"
-            pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-            title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
-            required
+            value={filter}
+            onChange={handleFilterChange}
           />
-          <input
-          className='input'
-            type="tel"
-            name="number"
-            pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
-            title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
-            required
-          />
-          <button type="submit" className='addBtn'>Add contact</button>
-        </form>
+        </label>
+      </div>
 
-        <div className='filter'>
-          <label
-            className='label'>
-            Find contacts by name
-            <input
-              className='input'
-              type="text"
-              value={this.state.filter}
-              onChange={this.handleFilterChange}
-            />
-          </label>
-        </div>
-
-        <ul className='list'>
-          {filteredContacts.map((contact, index) => (
-            <li key={index} className='listItem'>
-              <p className='contact'>{contact.name}: {contact.number}</p>
-              <button onClick={() => this.deleteContact(contact.name)} className='deleteBtn'>delete</button>
-            </li>
-          ))}
-        </ul>
-      </>
-    );
-  }
-}
+      <ul className='list'>
+        {filteredContacts.map((contact, index) => (
+          <li key={index} className='listItem'>
+            <p className='contact'>
+              {contact.name}: {contact.number}
+            </p>
+            <button onClick={() => deleteContact(contact.name)} className='deleteBtn'>
+              delete
+            </button>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+};
 
 export default App;
