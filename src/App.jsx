@@ -6,7 +6,7 @@ const App = () => {
     try {
       const saved = typeof window !== 'undefined' ? localStorage.getItem('contacts') : null;
       return saved ? JSON.parse(saved) : [];
-    } catch (error) {=
+    } catch (error) {
       console.error('Failed to read contacts from localStorage:', error);
       return [];
     }
