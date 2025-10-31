@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import './App.css';
+import '../App.css';
+import ShowContacts from './ShowContacts';
 
 const App = () => {
   const [contacts, setContacts] = useState(() => {
@@ -28,20 +29,15 @@ const App = () => {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const form = e.target;
-    const nameValue = name;
-    const numberValue = number;
 
-    if (contacts.find(contact => contact.name === nameValue)) {
-      alert(`${nameValue} is already in contacts.`);
-      form.reset();
+    if (contacts.find(contact => contact.name === name)) {
+      alert(`${name} is already in contacts.`);
       return;
     }
 
-    setContacts(prevContacts => [...prevContacts, { name: nameValue, number: numberValue }]);
+    setContacts(prev => [...prev, { name, number }]);
     setName('');
     setNumber('');
-    form.reset();
   };
 
   const handleFilterChange = (e) => {
@@ -55,27 +51,27 @@ const App = () => {
     );
   };
 
-  const deleteContact = (name) => {
-    setContacts(prevContacts => prevContacts.filter(contact => contact.name !== name));
+  const deleteContact = (nameToDelete) => {
+    setContacts(prev => prev.filter(contact => contact.name !== nameToDelete));
   };
 
   const filteredContacts = getFilteredContacts();
 
   return (
     <>
-      <form onSubmit={handleSubmit} className='form'>
+      <form onSubmit={handleSubmit} className="form">
         <input
-          className='input'
+          className="input"
           type="text"
           name="name"
           pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
-          title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
+          title="Name may contain only letters, apostrophe, dash and spaces."
           required
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
         <input
-          className='input'
+          className="input"
           type="tel"
           name="number"
           pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
@@ -84,16 +80,16 @@ const App = () => {
           value={number}
           onChange={(e) => setNumber(e.target.value)}
         />
-        <button type="submit" className='addBtn'>
+        <button type="submit" className="addBtn">
           Add contact
         </button>
       </form>
 
-      <div className='filter'>
-        <label className='label'>
+      <div className="filter">
+        <label className="label">
           Find contacts by name
           <input
-            className='input'
+            className="input"
             type="text"
             value={filter}
             onChange={handleFilterChange}
@@ -101,18 +97,7 @@ const App = () => {
         </label>
       </div>
 
-      <ul className='list'>
-        {filteredContacts.map((contact, index) => (
-          <li key={index} className='listItem'>
-            <p className='contact'>
-              {contact.name}: {contact.number}
-            </p>
-            <button onClick={() => deleteContact(contact.name)} className='deleteBtn'>
-              delete
-            </button>
-          </li>
-        ))}
-      </ul>
+      <ShowContacts contacts={filteredContacts} deleteContact={deleteContact} />
     </>
   );
 };
