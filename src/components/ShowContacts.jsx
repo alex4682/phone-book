@@ -1,13 +1,12 @@
-import React, { useContext } from 'react';
+import React from 'react';
 
 const addContext = React.createContext();
 
-const ShowReviews = ({ deleteContact }) => {
-  const filteredContacts = useContext(addContext);
+const ShowReviews = ({ contacts = [], deleteContact }) => {
 
   return (
     <ul className="list">
-      {filteredContacts.map((contact, index) => (
+      {Array.isArray(contacts) && contacts.length > 0 && contacts.map((contact, index) => (
         <li key={index} className="listItem">
           <p className="contact">
             {contact.name}: {contact.number}

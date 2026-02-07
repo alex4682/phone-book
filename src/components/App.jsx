@@ -1,58 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import '../App.css';
 import ShowContacts from './ShowContacts';
+import {addContact, deleteContact, setFilter} from '../redux/actions';
+import { useDispatch, useSelector } from 'react-redux';
+
 
 const App = () => {
-  const [contacts, setContacts] = useState(() => {
-    try {
-      const saved = typeof window !== 'undefined' ? localStorage.getItem('contacts') : null;
-      return saved ? JSON.parse(saved) : [];
-    } catch (error) {
-      console.error('Failed to read contacts from localStorage:', error);
-      return [];
-    }
-  });
+  const dispatch = useDispatch();
+  const contacts = useSelector(state => state.contacts);
+  const filter = useSelector(state => state.filter);
 
-  const [filter, setFilter] = useState('');
   const [name, setName] = useState('');
   const [number, setNumber] = useState('');
-
-  useEffect(() => {
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        localStorage.setItem('contacts', JSON.stringify(contacts));
-      }
-    } catch (error) {
-      console.error('Failed to save contacts to localStorage:', error);
-    }
-  }, [contacts]);
 
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    if (contacts.find(contact => contact.name === name)) {
+    if (contacts.find(contact => contact.number === number)) {
       alert(`${name} is already in contacts.`);
       return;
     }
 
-    setContacts(prev => [...prev, { name, number }]);
+    const newContact = { name, number };
+    dispatch(addContact(newContact));
     setName('');
     setNumber('');
   };
 
   const handleFilterChange = (e) => {
-    setFilter(e.target.value);
+    dispatch(setFilter(e.target.value));
   };
 
   const getFilteredContacts = () => {
-    const normalizedFilter = filter.toLowerCase();
     return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
+      contact.name.toLowerCase().includes(filter.toLowerCase())
     );
   };
 
-  const deleteContact = (nameToDelete) => {
-    setContacts(prev => prev.filter(contact => contact.name !== nameToDelete));
+  const handleDeleteContact = (name) => {
+    dispatch(deleteContact(name));
   };
 
   const filteredContacts = getFilteredContacts();
@@ -97,7 +83,7 @@ const App = () => {
         </label>
       </div>
 
-      <ShowContacts contacts={filteredContacts} deleteContact={deleteContact} />
+      <ShowContacts contacts={filteredContacts} deleteContact={handleDeleteContact} />
     </>
   );
 };
