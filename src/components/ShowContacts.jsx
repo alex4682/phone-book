@@ -1,4 +1,5 @@
 import React from 'react';
+import {deleteContact} from '../redux/actions'
 
 const addContext = React.createContext();
 
@@ -12,7 +13,7 @@ const ShowReviews = ({ contacts = [], deleteContact }) => {
             {contact.name}: {contact.number}
           </p>
           <button
-            onClick={() => deleteContact(contact.name)}
+            onClick={() => deleteContact(contact.number)}
             className="deleteBtn"
           >
             delete
