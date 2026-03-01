@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import '../App.css';
 import ShowContacts from './ShowContacts';
-import {addContact, deleteContact, setFilter} from '../redux/actions';
+import {addContact, deleteContact, setFilter} from '../redux/reducer';
 import { useDispatch, useSelector } from 'react-redux';
 
 

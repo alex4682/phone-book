@@ -1,5 +1,5 @@
-import { createReducer } from "@reduxjs/toolkit";
-import { addContact, deleteContact, setFilter } from "./actions";
+import { createSlice } from "@reduxjs/toolkit";
+// import { addContact, deleteContact, setFilter } from "./actions";
 
 const initialState = {
     contacts: (() => {
@@ -28,17 +28,39 @@ const saveToLocalStorage = (contacts) => {
   }
 };
 
-export const Reducer = createReducer(initialState, (builder) => {
-    builder
-        .addCase(addContact, (state, action) => {
-            state.contacts.push(action.payload);
-            saveToLocalStorage(state.contacts);
-        })
-        .addCase(deleteContact, (state, action) => {
-            state.contacts = state.contacts.filter(contact => contact.number !== action.payload);
-            saveToLocalStorage(state.contacts);
-        })
-        .addCase(setFilter, (state, action) => {
-            state.filter = action.payload;
-        });
-});
+// export const Reducer = createReducer(initialState, (builder) => {
+//     builder
+//         .addCase(addContact, (state, action) => {
+//             state.contacts.push(action.payload);
+//             saveToLocalStorage(state.contacts);
+//         })
+//         .addCase(deleteContact, (state, action) => {
+//             state.contacts = state.contacts.filter(contact => contact.number !== action.payload);
+//             saveToLocalStorage(state.contacts);
+//         })
+//         .addCase(setFilter, (state, action) => {
+//             state.filter = action.payload;
+//         });
+// });
+
+export const Slice = createSlice({
+  name: 'phoneBook',
+  initialState,
+  reducers: {
+    addContact: (state, action) => {
+      state.contacts.push(action.payload);
+      saveToLocalStorage(state.contacts);
+    },
+    deleteContact: (state, action) => {
+      state.contacts = state.contacts.filter(contact => contact.number !== action.payload);
+      saveToLocalStorage(state.contacts);
+    },
+    setFilter: (state, action) => {
+      state.filter = action.payload;
+    }
+  }
+
+})
+
+export const { addContact, deleteContact, setFilter } = Slice.actions;
+export default Slice.reducer;

@@ -1,5 +1,5 @@
 import React from 'react';
-import {deleteContact} from '../redux/actions'
+import {deleteContact} from '../redux/reducer'
 
 const addContext = React.createContext();
 
