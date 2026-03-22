@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import '../App.css';
 import ShowContacts from './ShowContacts';
-import {addContact, deleteContact, setFilter} from '../redux/reducer';
+import {setFilter} from '../redux/reducer';
+import { addNumber, deleteNumber } from '../redux/operations';
 import { useDispatch, useSelector } from 'react-redux';
 
 
@@ -21,8 +22,8 @@ const App = () => {
       return;
     }
 
-    const newContact = { name, number };
-    dispatch(addContact(newContact));
+    const newContact = { name, number: parseInt(number) };
+    dispatch(addNumber(newContact));
     setName('');
     setNumber('');
   };
@@ -38,7 +39,7 @@ const App = () => {
   };
 
   const handleDeleteContact = (name) => {
-    dispatch(deleteContact(name));
+    dispatch(deleteNumber(name));
   };
 
   const filteredContacts = getFilteredContacts();
